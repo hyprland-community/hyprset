@@ -6,17 +6,22 @@ import inspect
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+TITLE = "Hyprset"
+DEFAULT_TAB = "general"
+
 def get_conf():
     return asyncio.run(hyprland.Config.from_conf())
 
 class Hyprset(Gtk.Window):
     def __init__(self):
-        super().__init__(title="Hyprset")
+        super().__init__(title=TITLE)
 
         self.tabs = self.make_tabs()
         self.main_box = Gtk.ScrolledWindow()
-        self.main_box.add(Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6))
-        
+        #self.main_box.add(Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6))
+
+        self.main_box.add(self.tabs[DEFAULT_TAB])
+
         header = Gtk.HeaderBar()
         header.set_show_close_button(False)
         for tab in self.tabs:
