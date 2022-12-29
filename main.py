@@ -9,28 +9,13 @@ from gi.repository import Gtk
 def get_conf():
     return asyncio.run(hyprland.Config.from_conf())
 
-class MyWindow(Gtk.Window):
+class Hyprset(Gtk.Window):
     def __init__(self):
         super().__init__(title="Hyprset")
-        self.tabs = {}
 
+        self.tabs = self.make_tabs()
         self.main_box = Gtk.ScrolledWindow()
         self.main_box.add(Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6))
-        
-        conf = get_conf()
-        print(conf)
-
-        sections = inspect.getmembers(conf, lambda a:not(inspect.isroutine(a)))
-        sections = [a for a in sections if not(a[0].startswith('__') and a[0].endswith('__'))]
-        for section in hyprland.Config.get_sections():
-            options = inspect.getmembers(getattr(conf, section), lambda a:not(inspect.isroutine(a)))
-            options = [a for a in options if not(a[0].startswith('__') and a[0].endswith('__'))]
-            self.tabs[section] = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-            for setting,value in options:
-                box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-                box.add(Gtk.Label(label=setting))
-                box.add(Gtk.Button(label=str(value)))
-                self.tabs[section].add(box)
         
         header = Gtk.HeaderBar()
         header.set_show_close_button(False)
@@ -41,12 +26,24 @@ class MyWindow(Gtk.Window):
         self.set_titlebar(header)
         self.add(self.main_box)
 
-
-    def new_list():
-        l = Gtk.ListBox()
-        scroll = Gtk.ScrolledWindow()
-        scroll.add(l)
-        return scroll
+    def make_tabs(self):
+        conf = get_conf()
+        tabs = {}
+        for section in hyprland.Config.get_sections():
+            options = inspect.getmembers(getattr(conf, section), lambda a:not(inspect.isroutine(a)))
+            options = [a for a in options if not(a[0].startswith('__') and a[0].endswith('__'))]
+            tabs[section] = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+            for setting,value in options:
+                box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+                box.add(Gtk.Label(label=setting))
+                if type(value) == bool:
+                    switch = Gtk.Switch()
+                    switch.set_active(value)
+                    box.add(switch)
+                else:
+                    box.add(Gtk.Button(label=str(value)))
+                tabs[section].add(box)
+        return tabs
 
     def on_button_clicked(self, widget):
         if self.main_box.get_children():
@@ -56,7 +53,7 @@ class MyWindow(Gtk.Window):
         self.show_all()
 
 
-win = MyWindow()
+win = Hyprset()
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 print("beep boop")
