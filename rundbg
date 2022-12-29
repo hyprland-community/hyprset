@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+GTK_DEBUG=interactive python main.py
