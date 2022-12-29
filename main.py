@@ -18,8 +18,6 @@ class Hyprset(Gtk.Window):
 
         self.tabs = self.make_tabs()
         self.main_box = Gtk.ScrolledWindow()
-        #self.main_box.add(Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6))
-
         self.main_box.add(self.tabs[DEFAULT_TAB])
 
         header = Gtk.HeaderBar()
@@ -39,14 +37,29 @@ class Hyprset(Gtk.Window):
             options = [a for a in options if not(a[0].startswith('__') and a[0].endswith('__'))]
             tabs[section] = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
             for setting,value in options:
+
+                infobox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+                infobox.add(Gtk.Label(label=setting,halign=Gtk.Align.START))
+                infobox.add(Gtk.Label(label=getattr(getattr(conf, section),f'set_{setting}').__doc__,halign=Gtk.Align.START))
+
                 box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-                box.add(Gtk.Label(label=setting))
-                if type(value) == bool:
-                    switch = Gtk.Switch()
+                box.add(infobox)
+                if type(value) is bool:
+                    switch = Gtk.Switch(halign=Gtk.Align.END)
                     switch.set_active(value)
                     box.add(switch)
+                elif type(value) is int:
+                    spin = Gtk.SpinButton(halign=Gtk.Align.END)
+                    spin.set_range(0, 255)
+                    spin.set_increments(1, 1)
+                    spin.set_value(value)
+                    box.add(spin)
+                elif type(value) is str:
+                    entry = Gtk.Entry(halign=Gtk.Align.END)
+                    entry.set_text(value)
+                    box.add(entry)   
                 else:
-                    box.add(Gtk.Button(label=str(value)))
+                    box.add(Gtk.Button(label=str(value),halign=Gtk.Align.END))
                 tabs[section].add(box)
         return tabs
 
