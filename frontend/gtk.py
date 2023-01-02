@@ -15,7 +15,7 @@ class Hyprset_glade(Gtk.Application):
         self.backend = b
         self.handler = SignalHandler(self)
         super().__init__(application_id=consts.APP_ID)
-        self.builder = Gtk.Builder.new_from_file('ui/hyprset.glade')
+        self.builder = Gtk.Builder.new_from_file(consts.UI_HYPRSET)
         self.main_window = self.builder.get_object("main_window")
         self.tab_bar = self.builder.get_object("tab_bar")
         self.builder.connect_signals(self.handler)
