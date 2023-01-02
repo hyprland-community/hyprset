@@ -58,8 +58,20 @@ class Hyprset_glade(Gtk.Application):
         label = Gtk.Label(setting)
         label.set_halign(Gtk.Align.START)
         card.add(label)
-        entry = Gtk.Entry()
-        entry.set_text(str(value))
+        match value:
+            case str():
+                entry = Gtk.Entry() 
+                entry.set_text(str(value))
+            case int():
+                entry = Gtk.SpinButton()
+                entry.set_range(0,100)
+                entry.set_value(value)
+            case bool():
+                entry = Gtk.Switch()
+                entry.set_active(value)
+            case _:
+                entry = Gtk.Label("Unknown type")
+        entry.set_halign(Gtk.Align.END)
         card.add(entry)
         return card
 
