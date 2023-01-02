@@ -2,11 +2,13 @@ import gi
 import hyprland
 import asyncio
 
-from .handler import SignalHandler
-import consts
-
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
+from .handler import SignalHandler
+from . import consts
+
+
 
 
 class Hyprset_glade(Gtk.Application):
