@@ -5,7 +5,8 @@ import asyncio
 
 class Backend:
     def get_conf(self):
-        return asyncio.run(hyprland.Config.from_conf())
+        self.conf = asyncio.run(hyprland.Config.from_conf())
+        return self.conf
 
     def make_tabs(self):
         conf = self.get_conf()
@@ -20,3 +21,6 @@ class Backend:
                 doc = getattr(getattr(conf,section), f'set_{setting}').__doc__
                 tabs[section].append((setting, value, doc))
         return tabs
+    
+    def update_conf(self,section,setting,value):
+        setattr(getattr(self.conf,section),setting.replace('.','__'),value)

@@ -8,9 +8,6 @@ from gi.repository import Gtk
 from .handler import SignalHandler
 from . import consts
 
-
-
-
 class Hyprset_glade(Gtk.Application):
     def __init__(self,b):
         self.pages = {}
@@ -32,12 +29,12 @@ class Hyprset_glade(Gtk.Application):
             page = Gtk.Box()
             page.set_orientation(Gtk.Orientation.VERTICAL)
             for setting in settings:
-                page.add(self.create_card(*setting))
+                page.add(self.create_card(*setting,tab=tab))
             scrolled.add(page)
             self.pages[tab] = scrolled
             self.tab_bar.append_page(scrolled, Gtk.Label(tab))
     
-    def create_card(self,setting,value,doc):
+    def create_card(self,setting,value,doc,tab=None):
         card = Gtk.Box()
         card.set_orientation(Gtk.Orientation.HORIZONTAL)
         card.set_halign(Gtk.Align.FILL)
@@ -52,23 +49,63 @@ class Hyprset_glade(Gtk.Application):
         card.add(label)
         match value:
             case str():
-                entry = Gtk.Entry() 
+                entry = Gtk.Entry()
+                setattr(entry,"__setting",setting)
+                setattr(entry,"__section",tab)
+                entry.connect("changed",self.callback_entry)
                 entry.set_text(str(value))
             case bool():
                 entry = Gtk.Switch()
+                setattr(entry,"__setting",setting)
+                setattr(entry,"__section",tab)
+                entry.connect("state-set",self.callback_switch)
                 entry.set_active(value)
             case int():
-                entry = Gtk.Entry() 
-                entry.set_text(str(value))
+                entry = Gtk.Scale() 
+                setattr(entry,"__setting",setting)
+                setattr(entry,"__section",tab)
+                entry.set_range(0,100)
+                entry.set_value(value)
+                entry.set_digits(0)
+                entry.set_increments(1,10)
+
+                entry.connect("value-changed",self.callback_scale)
             case float():
-                entry = Gtk.Entry()
-                entry.set_text(str(value))
+                entry = Gtk.Scale() 
+                setattr(entry,"__setting",setting)
+                setattr(entry,"__section",tab)
+                entry.set_range(0,10)
+                entry.set_value(value)
+                entry.set_digits(2)
+                entry.set_increments(0.1,1)
+
+                entry.connect("value-changed",self.callback_scale)
             case _:
                 entry = Gtk.Label("Unknown type")
-        entry.set_halign(Gtk.Align.END)
+        
         card.add(entry)
         card.set_tooltip_text(doc)
         return card
+
+    def callback_scale(self,widget):
+        section = getattr(widget,"__section")
+        setting = getattr(widget,"__setting")
+        value = widget.get_value()
+        print(section,setting,value)
+        self.backend.update_conf(section,setting,value)
+
+    def callback_entry(self,widget):
+        section = getattr(widget,"__section")
+        setting = getattr(widget,"__setting")
+        value = widget.get_text()
+        print(section,setting,value)
+        self.backend.update_conf(section,setting,value)
+    
+    def callback_switch(self,widget,value):
+        section = getattr(widget,"__section")
+        setting = getattr(widget,"__setting")
+        print(section,setting,value)
+        self.backend.update_conf(section,setting,value)
 
     def do_activate(self):
         self.main_window.present()
