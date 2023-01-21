@@ -39,11 +39,13 @@ class Hyprset_glade(Gtk.Application):
         card.set_orientation(Gtk.Orientation.HORIZONTAL)
         card.set_halign(Gtk.Align.FILL)
         card.set_homogeneous(True)
+
         card.set_margin_top(10)
         card.set_margin_bottom(10)
         card.set_margin_start(10)
         card.set_margin_end(10)
         card.set_spacing(10)
+
         label = Gtk.Label(setting)
         label.set_halign(Gtk.Align.START)
         card.add(label)
@@ -52,13 +54,14 @@ class Hyprset_glade(Gtk.Application):
                 entry = Gtk.Entry()
                 setattr(entry,"__setting",setting)
                 setattr(entry,"__section",tab)
-                entry.connect("changed",self.callback_entry)
+                entry.connect("changed",self.handler.callback_entry)
                 entry.set_text(str(value))
             case bool():
                 entry = Gtk.Switch()
+                entry.set_halign(Gtk.Align.END)
                 setattr(entry,"__setting",setting)
                 setattr(entry,"__section",tab)
-                entry.connect("state-set",self.callback_switch)
+                entry.connect("state-set",self.handler.callback_switch)
                 entry.set_active(value)
             case int():
                 entry = Gtk.Scale() 
@@ -69,7 +72,7 @@ class Hyprset_glade(Gtk.Application):
                 entry.set_digits(0)
                 entry.set_increments(1,10)
 
-                entry.connect("value-changed",self.callback_scale)
+                entry.connect("value-changed",self.handler.callback_scale)
             case float():
                 entry = Gtk.Scale() 
                 setattr(entry,"__setting",setting)
@@ -79,33 +82,13 @@ class Hyprset_glade(Gtk.Application):
                 entry.set_digits(2)
                 entry.set_increments(0.1,1)
 
-                entry.connect("value-changed",self.callback_scale)
+                entry.connect("value-changed",self.handler.callback_scale)
             case _:
                 entry = Gtk.Label("Unknown type")
         
         card.add(entry)
         card.set_tooltip_text(doc)
         return card
-
-    def callback_scale(self,widget):
-        section = getattr(widget,"__section")
-        setting = getattr(widget,"__setting")
-        value = widget.get_value()
-        print(section,setting,value)
-        self.backend.update_conf(section,setting,value)
-
-    def callback_entry(self,widget):
-        section = getattr(widget,"__section")
-        setting = getattr(widget,"__setting")
-        value = widget.get_text()
-        print(section,setting,value)
-        self.backend.update_conf(section,setting,value)
-    
-    def callback_switch(self,widget,value):
-        section = getattr(widget,"__section")
-        setting = getattr(widget,"__setting")
-        print(section,setting,value)
-        self.backend.update_conf(section,setting,value)
 
     def do_activate(self):
         self.main_window.present()
