@@ -1,2 +1,4 @@
-__pycache__
-hyprset.glade~
+#/src/
+**/__pycache__/
+/build/
+

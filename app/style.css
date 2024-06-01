@@ -1,0 +1,27 @@
+.hyprland-settings {
+  font-weight: 700;
+}
+
+.transparent-button {
+  background: unset;
+  font-weight: 500;
+}
+
+.list-box-scroll {
+  background: transparent;
+}
+.list-box-scroll .list-box-row {
+  border-radius: 6px;
+  padding: 0 12px;
+  margin: 0 6px 2px 6px;
+  min-height: 40px;
+}
+.list-box-scroll .list-box-row label {
+  font-size: 14.6px;
+  font-weight: 400;
+}
+.list-box-scroll separator {
+  margin: 6px;
+}
+
+/*# sourceMappingURL=style.css.map */

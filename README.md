@@ -1,12 +1,34 @@
-<hr>
+# Hyprset
 
-# caution: very WIP
+A GTK4/LibAdwaita tool to configure your Hyprland desktop.
 
-<hr>
+Built using [hyprparser-py](https://github.com/tokyob0t/hyprparser-py)
 
-# hyprset
-a gui hyprland config editor using hyprland-py
+![[app.png]]
 
-what it looks like right now
-![image](https://user-images.githubusercontent.com/77581181/210253109-a5ef2dd4-8e4c-4d10-8c9d-71dbce56bd44.png)
+---
+
+##### Todo
+
+- [x] Add a smol popup to notify changes
+- [ ] Support colors, gradients, etc..
+- [ ] Add a preview for decoration settings
+- [ ] Remove, add keybindings
+- [ ] Remove, add env vars
+- [ ] Remove, add startup cmds
+- [ ] Finish pages
+  - [ ] General
+  - [ ] Decoration
+  - [ ] Animations
+  - [ ] Input
+  - [ ] Gestures
+  - [ ] Group
+  - [ ] Misc
+  - [ ] Binds
+  - [ ] Variables
+  - [ ] More
+
+##### Extra
+
+- [ ] Add pages for hyprpaper, hypridle, hyprlock...
 
