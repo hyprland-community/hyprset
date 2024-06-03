@@ -17,7 +17,7 @@ Built using [hyprparser-py](https://github.com/tokyob0t/hyprparser-py)
 - [ ] Remove, add env vars
 - [ ] Remove, add startup cmds
 - [ ] Finish pages
-  - [ ] General
+  - [x] General
   - [ ] Decoration
   - [ ] Animations
   - [ ] Input
