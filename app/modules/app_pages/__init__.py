@@ -1,10 +1,16 @@
+from .decoration import decoration_page
 from .general import general_page
+
+PAGES_DICT = {
+    "General": general_page,
+    "Decoration": decoration_page,
+}
 
 PAGES_LIST = [
     {
         "icon": "settings-symbolic",
         "label": "General",
-        "desc": "Gaps, borders, colors, cursor & layout settings.",
+        "desc": "Gaps, borders, colors, cursor and other settings.",
     },
     {
         "icon": "window-new-symbolic",
@@ -34,18 +40,6 @@ PAGES_LIST = [
     },
     {"separator": True},
     {
-        "icon": "preferences-desktop-theme-symbolic",
-        "label": "Wallpaper",
-        "desc": "Hyprpaper settings.",
-    },
-    {"icon": "bed-symbolic", "label": "Idle", "desc": "Hypridle settings."},
-    {
-        "icon": "system-lock-screen-symbolic",
-        "label": "Lock",
-        "desc": "Hyprlock settings.",
-    },
-    {"separator": True},
-    {
         "icon": "preferences-system-symbolic",
         "label": "Misc",
         "desc": "Change miscellaneous settings.",
@@ -60,5 +54,18 @@ PAGES_LIST = [
         "label": "Variables",
         "desc": "Adjust variables.",
     },
+    {"separator": True},
+    {
+        "icon": "preferences-desktop-theme-symbolic",
+        "label": "Wallpaper",
+        "desc": "Hyprpaper settings.",
+    },
+    {"icon": "bed-symbolic", "label": "Idle", "desc": "Hypridle settings."},
+    {
+        "icon": "system-lock-screen-symbolic",
+        "label": "Lock",
+        "desc": "Hyprlock settings.",
+    },
+    {"separator": True},
     {"icon": "view-more-symbolic", "label": "More", "desc": ""},
 ]

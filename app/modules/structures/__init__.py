@@ -1,21 +1,25 @@
-import typing
+from typing import Type
 
-import gi
+from ..imports import (Adw, Color, Gio, Gradient, Gtk, HyprData, List, Setting,
+                       Union)
 
-gi.require_version("Adw", "1")
-from gi.repository import Adw, Gtk
-from hyprparser import Color, Gradient, HyprData, Setting
+# Some widgets have a default value, to check
+# if their new value is different from the initial one.
+# If it is, then the changes count of the toast is increased;
+# if not, then the changes count of the toast is decreased.
 
 
 class CustomToastOverlay:
-    instances = []
+    instances: List[
+        Union["Adjustment", "ColorEntryRow", "ColorExpanderRow", "SwitchRow"]
+    ] = []
 
     def __init__(self) -> None:
         self.changes = 0
         self._instance = Adw.ToastOverlay.new()
-        self.toast = Adw.Toast.new("You have some unsaved changes!")
+        self.toast = Adw.Toast.new("You have 0 unsaved changes!")
         self.toast.connect("button-clicked", self.save_changes)
-        self.toast.set_button_label("Save now plz")
+        self.toast.set_button_label("Save now")
         self.toast.set_timeout(0)
 
     @property
@@ -30,20 +34,23 @@ class CustomToastOverlay:
 
     def add_change(self) -> None:
         self.changes += 1
-        if self.changes >= 1:
-            self.show_toast()
+        self.toast.set_title(f"You have {self.changes} unsaved changes!")
+        return self.show_toast()
 
     def del_change(self) -> None:
         self.changes -= 1
+        self.toast.set_title(f"You have {self.changes} unsaved changes!")
         if self.changes == 0:
-            self.hide_toast()
+            return self.hide_toast()
 
+    # After calling this function, each widget updates its new default value.
     def save_changes(self, *_) -> None:
-        if self.changes == 0:
-            return
+        # if self.changes == 0:
+        #    return
 
         self.changes = 0
         self.hide_toast()
+
         for i in CustomToastOverlay.instances:
             i.update_default()
         return HyprData.save_all()
@@ -85,20 +92,21 @@ class ColorEntryRow(Adw.EntryRow):
     def __onclick(self, *_):
         return self.parent.remove(self)
 
-    def __onchanged(self, *_):
+    def __onchanged(self, *_: "ColorEntryRow"):
         return self.set_title(self.get_text()[:8].lower())
 
     def __parse_title(self, color: str) -> str:
         color = "".join(
-            char if char in set("0123456789abcdef") else "f" for char in color
+            char if char in set("0123456789abcdef") else "f" for char in color.lower()
         )
-        return f"<b><span foreground='#{color:f<8}'>Color</span></b>"
+        return f"<b><span foreground='#{color:0<8}'>Color</span></b>"
 
     def set_title(self, title: str = "") -> None:
         return super().set_title(self.__parse_title(title))
 
     def get_text(self) -> str:
-        return getattr(super, "get_text", lambda: "")()
+        return getattr(super(), "get_text", lambda: "")()
+        # return super().get_text()  # type: ignore
 
     def update_default(self):
         self._default = self.get_text()
@@ -121,7 +129,9 @@ class ColorExpanderRow(Adw.ExpanderRow):
         self.set_title(title)
         self.set_subtitle(subtitle)
         self.add_row(self.button)
-        self.button.connect("clicked", lambda *_: self.add_row(ColorEntryRow(self, "")))
+        self.button.connect(
+            "clicked", lambda *_: self.add_row(ColorEntryRow(self, "777777FF"))
+        )
 
         tmp = HyprData.get_option(self.section)
 
@@ -139,10 +149,26 @@ class ColorExpanderRow(Adw.ExpanderRow):
 
 
 class Adjustment(Gtk.Adjustment):
-    def __init__(self, section: str):
-        super().__init__(
-            value=0, lower=0, upper=1000, step_increment=1, page_increment=10
-        )
+    def __init__(
+        self,
+        section: str,
+        data_type: Type[Union[int, float]] = int,
+        min: Union[int, float] = 0,
+        max: Union[int, float] = 255,
+    ):
+        super().__init__()
+        self.data_type = data_type
+        self.set_lower(min)
+        self.set_upper(max)
+        self.set_page_size(0)
+
+        if data_type.__name__ == "int":
+            self.set_step_increment(1)
+            self.set_page_increment(10)
+        else:
+            self.set_step_increment(0.1)
+            self.set_page_increment(1.0)
+
         ToastOverlay.instances.append(self)
         self.section = section
 
@@ -159,7 +185,7 @@ class Adjustment(Gtk.Adjustment):
         self.connect("value-changed", self.__value_changed)
 
     def __value_changed(self, _):
-        if self._default[0] != round(self.get_value()):
+        if self._default[0] != self.get_value():  # type: ignore
             if not self._default[1]:
                 ToastOverlay.add_change()
                 self._default = (self._default[0], True)
@@ -170,15 +196,29 @@ class Adjustment(Gtk.Adjustment):
         return HyprData.set_option(self.section, round(self.get_value()))
 
     def update_default(self) -> None:
-        self._default = (round(self.get_value()), False)
+        self._default = (self.get_value(), False)
 
 
 class SpinRow:
-    def __init__(self, title: str, subtitle: str, section: str):
+    def __init__(
+        self,
+        title: str,
+        subtitle: str,
+        section: str,
+        data_type: Type[Union[int, float]] = int,
+        min: Union[int, float] = 0,
+        max: Union[int, float] = 255,
+    ):
         self._instance = Adw.SpinRow()
-        self.instance.set_adjustment(Adjustment(section))
+        self.instance.set_adjustment(Adjustment(section, data_type, min, max))
         self.instance.set_title(title)
         self.instance.set_subtitle(subtitle)
+
+        if data_type.__name__ == "float":
+            self.instance.set_digits(2)
+
+    def reset_value(self) -> None:
+        pass
 
     @property
     def instance(self) -> Adw.SpinRow:
@@ -216,7 +256,6 @@ class SwitchRow:
             ToastOverlay.add_change()
         else:
             ToastOverlay.del_change()
-
         if self.__invert:
             return HyprData.set_option(self.section, not self.instance.get_active())
         return HyprData.set_option(self.section, self.instance.get_active())
@@ -227,3 +266,51 @@ class SwitchRow:
 
     def update_default(self):
         self._default = self.instance.get_active()
+
+
+class InfoButton(Gtk.MenuButton):
+    def __init__(self, text: str) -> None:
+        super().__init__(
+            icon_name="help-info-symbolic",
+        )
+        self.set_icon_name("help-info-symbolic")
+        self.set_sensitive(True)
+        self.set_valign(Gtk.Align.CENTER)
+        self.set_halign(Gtk.Align.CENTER)
+        self.add_css_class("flat")
+        self.set_popover()
+        self.popover = Gtk.Popover.new()
+        self.label = Gtk.Label.new(text)
+        self.label.set_markup(text)
+        self.label.set_wrap(True)
+        self.label.set_max_width_chars(40)
+
+        self.popover.set_child(self.label)
+        self.set_popover(self.popover)
+
+
+class CheckButtonImage(Gtk.Box):
+    def __init__(self, title: str, image: str) -> None:
+        super().__init__()
+        self.set_spacing(12)
+        self.set_margin_top(6)
+        self.set_orientation(Gtk.Orientation.VERTICAL)
+        self.checkbutton = Gtk.CheckButton.new_with_label(title)
+
+        self.img = Gtk.Image.new_from_gicon(
+            Gio.FileIcon.new(
+                Gio.File.new_for_path("{}/icons/{}.svg".format(__file__[:-31], image))
+            )
+        )
+        self.img.set_pixel_size(200)
+
+        self.img.set_hexpand(True)
+        self.img.set_vexpand(True)
+
+        self.img_container = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
+        self.img_container.add_css_class("background")
+        self.img_container.add_css_class("frame")
+        self.img_container.append(self.img)
+
+        self.append(self.img_container)
+        self.append(self.checkbutton)

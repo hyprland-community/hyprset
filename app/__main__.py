@@ -1,10 +1,5 @@
-import gi
-
-gi.require_version("Gtk", "4.0")
-gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, Gio, GLib, Gtk
-
-from modules.app_pages import PAGES_LIST, general_page
+from modules.app_pages import PAGES_DICT, PAGES_LIST
+from modules.imports import Adw, Gdk, Gio, GLib, Gtk
 from modules.structures import ToastOverlay
 
 
@@ -22,7 +17,7 @@ class ApplicationWindow(Adw.ApplicationWindow):
         )
         self.main_content_top_bar = Adw.HeaderBar.new()
         self.main_content_top_bar_title = Adw.WindowTitle.new(
-            "General", "Gaps, borders, colors, cursor & layout settings."
+            "General", "Gaps, borders, colors, cursor and other settings."
         )
 
         self.main_content.add_top_bar(self.main_content_top_bar)
@@ -80,7 +75,7 @@ class ApplicationWindow(Adw.ApplicationWindow):
 
             self.sidebar_listbox.insert(tmp_rowbox, -1)
 
-        self.sidebar_listbox.connect("row-activated", self.__on_sidebar_selection)
+        self.sidebar_listbox.connect("row-activated", self.on_row_activated)
         self.root.set_sidebar(self.sidebar_navigation_page)
         self.root.set_content(self.main_content_navigation_page)
 
@@ -98,19 +93,19 @@ class ApplicationWindow(Adw.ApplicationWindow):
         self.sidebar_listbox.unselect_all()
         return self.add_pages()
 
-    def __on_sidebar_selection(self, _, sidebar_rowbox: Gtk.ListBoxRow):
+    def on_row_activated(self, _, sidebar_rowbox: Gtk.ListBoxRow):
         self.main_content_top_bar_title.set_title(getattr(sidebar_rowbox, "title"))
         self.main_content_top_bar_title.set_subtitle(getattr(sidebar_rowbox, "desc"))
-        return
         self.main_content_view_stack.set_visible_child_name(
             getattr(sidebar_rowbox, "title")
         )
 
     def add_pages(self):
-        self.main_content_view_stack.add_named(
-            general_page,
-            "General",
-        )
+        for name, page in PAGES_DICT.items():
+            self.main_content_view_stack.add_named(
+                page,
+                name,
+            )
 
 
 class Application(Adw.Application):
@@ -126,7 +121,7 @@ class Application(Adw.Application):
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{__file__[:-12]}/style.css")
 
-        return Gtk.StyleContext.add_provider_for_display(
+        return Gtk.StyleContext.add_provider_for_display(  # type: ignore
             Gdk.Display.get_default(),
             css_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
