@@ -209,7 +209,9 @@ class Adjustment(Gtk.Adjustment):
             ToastOverlay.del_change()
             self._default = (self._default[0], False)
 
-        return HyprData.set_option(self.section, round(self.get_value()))
+        if self.data_type.__name__ == "int":
+            return HyprData.set_option(self.section, round(self.get_value()))
+        return HyprData.set_option(self.section, self.get_value())
 
     def update_default(self) -> None:
         self._default = (self.get_value(), False)

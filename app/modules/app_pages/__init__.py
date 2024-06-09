@@ -18,7 +18,7 @@ PAGES_LIST = [
         "desc": "Rounding, blur, transparency, shadow and dim settings.",
     },
     {
-        "icon": "graph-symbolic",
+        "icon": "move-to-window-symbolic",
         "label": "Animations",
         "desc": "Change animations settings.",
     },
@@ -50,19 +50,24 @@ PAGES_LIST = [
         "desc": "Change binds settings.",
     },
     {
-        "icon": "shapes-symbolic",
+        "icon": "test-symbolic",
         "label": "Variables",
         "desc": "Adjust variables.",
     },
     {"separator": True},
     {
-        "icon": "preferences-desktop-wallpaper-symbolic",
+        # "icon": "preferences-desktop-wallpaper-symbolic",
+        "icon": "preferences-desktop-appearance-symbolic",
         "label": "Wallpaper",
         "desc": "Hyprpaper settings.",
     },
-    {"icon": "bed-symbolic", "label": "Idle", "desc": "Hypridle settings."},
     {
-        "icon": "system-lock-screen-symbolic",
+        "icon": "background-app-sleepyface-symbolic",
+        "label": "Idle",
+        "desc": "Hypridle settings.",
+    },
+    {
+        "icon": "key4-symbolic",
         "label": "Lock",
         "desc": "Hyprlock settings.",
     },

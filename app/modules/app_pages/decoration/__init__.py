@@ -31,6 +31,7 @@ settings_opacity_active = SpinRow(
     data_type=float,
     max=1.0,
 )
+
 settings_opacity_inactive = SpinRow(
     "Inactive Opacity",
     "Opacity of inactive windows.",
