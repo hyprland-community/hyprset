@@ -157,7 +157,7 @@ settings_blur.add(
     ButtonRow(
         "tool-gradient-conical-symbolic",
         "Blur",
-        "Size, passes, noise, contrast...",
+        "Size, passes, noise, contrast, vibrancy...",
         lambda *_: decoration_page.push_by_tag("blur-page"),
     )
 )

@@ -15,7 +15,7 @@ PAGES_LIST = [
     {
         "icon": "window-new-symbolic",
         "label": "Decoration",
-        "desc": "Rounding, blur, shadow, dim...",
+        "desc": "Rounding, blur, transparency, shadow and dim settings.",
     },
     {
         "icon": "graph-symbolic",
