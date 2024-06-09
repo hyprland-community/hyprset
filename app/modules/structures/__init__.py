@@ -1,7 +1,17 @@
-from typing import Type
+from typing import Literal, Type
 
-from ..imports import (Adw, Color, Gio, Gradient, Gtk, HyprData, List, Setting,
-                       Union)
+from ..imports import (
+    Adw,
+    Color,
+    Gio,
+    GLib,
+    Gradient,
+    Gtk,
+    HyprData,
+    List,
+    Setting,
+    Union,
+)
 
 # Some widgets have a default value, to check
 # if their new value is different from the initial one.
@@ -11,7 +21,13 @@ from ..imports import (Adw, Color, Gio, Gradient, Gtk, HyprData, List, Setting,
 
 class CustomToastOverlay:
     instances: List[
-        Union["Adjustment", "ColorEntryRow", "ColorExpanderRow", "SwitchRow"]
+        Union[
+            "Adjustment",
+            "ColorExpanderRow.ColorEntryRow",
+            "ColorEntryRow",
+            "ColorExpanderRow",
+            "SwitchRow",
+        ]
     ] = []
 
     def __init__(self) -> None:
@@ -66,53 +82,52 @@ class PreferencesGroup(Adw.PreferencesGroup):
         self.set_description(description)
 
 
-class ColorEntryRow(Adw.EntryRow):
-    def __init__(self, parent: "ColorExpanderRow", new_color: str = ""):
-        super().__init__()
-        self.parent = parent
-        self.set_title("Color")
-        ToastOverlay.instances.append(self)
-
-        if new_color:
-            self._default = new_color
-            self.set_text(self._default)
-            self.set_title(self._default)
-
-        self.button = Gtk.Button(
-            icon_name="user-trash-symbolic",
-            can_focus=False,
-        )
-        self.button.add_css_class("transparent-button")
-
-        self.add_suffix(self.button)
-
-        self.button.connect("clicked", self.__onclick)
-        self.connect("changed", self.__onchanged)
-
-    def __onclick(self, *_):
-        return self.parent.remove(self)
-
-    def __onchanged(self, *_: "ColorEntryRow"):
-        return self.set_title(self.get_text()[:8].lower())
-
-    def __parse_title(self, color: str) -> str:
-        color = "".join(
-            char if char in set("0123456789abcdef") else "f" for char in color.lower()
-        )
-        return f"<b><span foreground='#{color:0<8}'>Color</span></b>"
-
-    def set_title(self, title: str = "") -> None:
-        return super().set_title(self.__parse_title(title))
-
-    def get_text(self) -> str:
-        return getattr(super(), "get_text", lambda: "")()
-        # return super().get_text()  # type: ignore
-
-    def update_default(self):
-        self._default = self.get_text()
-
-
 class ColorExpanderRow(Adw.ExpanderRow):
+    class ColorEntryRow(Adw.EntryRow):
+        def __init__(self, parent: "ColorExpanderRow", new_color: str = ""):
+            super().__init__()
+            self.parent = parent
+            self.set_title("Color")
+            ToastOverlay.instances.append(self)
+
+            if new_color:
+                self._default = new_color
+                self.set_text(self._default)
+                self.set_title(self._default)
+
+            self.button = Gtk.Button(
+                icon_name="user-trash-symbolic",
+                can_focus=False,
+            )
+            self.button.add_css_class("transparent-button")
+
+            self.add_suffix(self.button)
+
+            self.button.connect("clicked", self.__onclick)
+            self.connect("changed", self.__onchanged)
+
+        def __onclick(self, *_):
+            return self.parent.remove(self)
+
+        def __onchanged(self, *_: "ColorExpanderRow.ColorEntryRow"):
+            return self.set_title(self.get_text()[:8].lower())
+
+        def __parse_title(self, color: str) -> str:
+            color = "".join(
+                char if char in set("0123456789abcdef") else "f"
+                for char in color.lower()
+            )
+            return f"<b><span foreground='#{color:0<8}'>Color</span></b>"
+
+        def set_title(self, title: str = "") -> None:
+            return super().set_title(self.__parse_title(title))
+
+        def get_text(self) -> str:
+            return getattr(super(), "get_text", lambda: "")()
+
+        def update_default(self):
+            self._default = self.get_text()
+
     def __init__(self, title: str, subtitle: str, section: str):
         super().__init__()
         ToastOverlay.instances.append(self)
@@ -130,7 +145,8 @@ class ColorExpanderRow(Adw.ExpanderRow):
         self.set_subtitle(subtitle)
         self.add_row(self.button)
         self.button.connect(
-            "clicked", lambda *_: self.add_row(ColorEntryRow(self, "777777FF"))
+            "clicked",
+            lambda *_: self.add_row(ColorExpanderRow.ColorEntryRow(self, "777777FF")),
         )
 
         tmp = HyprData.get_option(self.section)
@@ -142,7 +158,7 @@ class ColorExpanderRow(Adw.ExpanderRow):
         if isinstance(tmp.value, (Gradient)):
             color: Color
             for color in tmp.value.colors:
-                self.add_row(ColorEntryRow(self, color.rgba))
+                self.add_row(ColorExpanderRow.ColorEntryRow(self, color.rgba))
 
     def update_default(self) -> None:
         pass
@@ -175,7 +191,7 @@ class Adjustment(Gtk.Adjustment):
         opt = HyprData.get_option(self.section)
 
         if not opt:
-            opt = Setting(self.section, 0)
+            opt = Setting(self.section, 1)
             HyprData.new_option(opt)
 
         if isinstance(opt.value, (int, float)):
@@ -208,6 +224,7 @@ class SpinRow:
         data_type: Type[Union[int, float]] = int,
         min: Union[int, float] = 0,
         max: Union[int, float] = 255,
+        decimal_digits: int = 2,
     ):
         self._instance = Adw.SpinRow()
         self.instance.set_adjustment(Adjustment(section, data_type, min, max))
@@ -215,10 +232,7 @@ class SpinRow:
         self.instance.set_subtitle(subtitle)
 
         if data_type.__name__ == "float":
-            self.instance.set_digits(2)
-
-    def reset_value(self) -> None:
-        pass
+            self.instance.set_digits(decimal_digits)
 
     @property
     def instance(self) -> Adw.SpinRow:
@@ -289,6 +303,59 @@ class InfoButton(Gtk.MenuButton):
         self.set_popover(self.popover)
 
 
+class ColorEntryRow(Adw.ActionRow):
+    def __init__(self, title: str, description: str, section: str) -> None:
+        super().__init__()
+        ToastOverlay.instances.append(self)
+        self.set_title(title)
+        self.set_subtitle(description)
+        self.entry = Gtk.Entry.new()
+        self.add_suffix(self.entry)
+        self.entry.set_valign(Gtk.Align.CENTER)
+
+        self.section = section
+        opt = HyprData.get_option(self.section)
+
+        if not opt:
+            opt = Setting(self.section, Color("00", "00", "00", "ff"))
+            HyprData.new_option(opt)
+
+        self.color: Color = opt.value  # type: ignore
+        if isinstance(opt.value, (Color)):
+            self.entry.set_text(opt.value.rgba)
+
+        self._default = (self.get_text(), False)
+        self.entry.connect("changed", self.__value_changed)
+
+    def __value_changed(self, _):
+        if self._default[0] != self.get_text():
+            if not self._default[1]:
+                ToastOverlay.add_change()
+                self._default = (self._default[0], True)
+        else:
+            ToastOverlay.del_change()
+            self._default = (self._default[0], False)
+
+        txt = self.get_text()
+        self.color.r = txt[0:2]
+        self.color.g = txt[2:4]
+        self.color.b = txt[4:6]
+        self.color.a = txt[6:8]
+
+        return HyprData.set_option(self.section, self.color)
+
+    def update_default(self) -> None:
+        self._default = (self.get_text(), False)
+
+    def get_text(self) -> str:
+        color: str = self.entry.get_text()[:8]  # type: ignore
+        color = "".join(
+            char if char in set("0123456789abcdef") else "f" for char in color.lower()
+        )
+        color = f"{color:0<8}"
+        return color
+
+
 class CheckButtonImage(Gtk.Box):
     def __init__(self, title: str, image: str) -> None:
         super().__init__()
@@ -296,12 +363,15 @@ class CheckButtonImage(Gtk.Box):
         self.set_margin_top(6)
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.checkbutton = Gtk.CheckButton.new_with_label(title)
+        self.checkbutton.get_first_child().set_margin_start(12)  # type: ignore
+        self.checkbutton.get_last_child().set_margin_start(6)  # type: ignore
 
         self.img = Gtk.Image.new_from_gicon(
             Gio.FileIcon.new(
                 Gio.File.new_for_path("{}/icons/{}.svg".format(__file__[:-31], image))
             )
         )
+        self.img.add_css_class("icon")
         self.img.set_pixel_size(200)
 
         self.img.set_hexpand(True)
@@ -314,3 +384,36 @@ class CheckButtonImage(Gtk.Box):
 
         self.append(self.img_container)
         self.append(self.checkbutton)
+
+
+class ButtonRow(Adw.ActionRow):
+    def __init__(
+        self, prefix: str, title: str, subtitle: str, onclick=lambda self: self
+    ) -> None:
+        super().__init__()
+        self.set_title(title)
+        self.set_subtitle(subtitle)
+        self.set_activatable(True)
+        self.add_prefix(Icon(prefix))
+        self.add_suffix(Icon("go-next-symbolic"))
+        self.connect("activated", onclick)
+
+
+class Icon(Gtk.Image):
+    def __init__(
+        self, name: str, size: Literal["large", "normal", "inherit"] = "normal"
+    ) -> None:
+        super().__init__()
+        tmp_filepath = "{}/icons/{}.svg".format(__file__[:-31], name)
+        if GLib.file_test(tmp_filepath, GLib.FileTest.EXISTS):
+            self.set_from_gicon(Gio.FileIcon.new(Gio.File.new_for_path(tmp_filepath)))
+        else:
+            self.set_from_icon_name(name)
+
+        match size:
+            case "large":
+                self.set_icon_size(Gtk.IconSize.LARGE)
+            case "normal":
+                self.set_icon_size(Gtk.IconSize.NORMAL)
+            case "inherit":
+                self.set_icon_size(Gtk.IconSize.INHERIT)

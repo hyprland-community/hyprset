@@ -110,7 +110,7 @@ settings_cursor_apply_sens_to_raw = SwitchRow(
 )
 
 # Other
-settings_other = PreferencesGroup("Other", "")
+settings_other = PreferencesGroup("", "")
 
 # Layout Chooser Row
 settings_other_layout = Adw.ActionRow.new()

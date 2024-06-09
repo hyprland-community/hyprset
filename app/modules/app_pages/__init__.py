@@ -56,7 +56,7 @@ PAGES_LIST = [
     },
     {"separator": True},
     {
-        "icon": "preferences-desktop-theme-symbolic",
+        "icon": "preferences-desktop-wallpaper-symbolic",
         "label": "Wallpaper",
         "desc": "Hyprpaper settings.",
     },

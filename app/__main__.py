@@ -1,11 +1,13 @@
-from modules.app_pages import PAGES_DICT, PAGES_LIST
+from modules.app_pages import (PAGES_DICT, PAGES_LIST, decoration_page,
+                               general_page)
 from modules.imports import Adw, Gdk, Gio, GLib, Gtk
-from modules.structures import ToastOverlay
+from modules.structures import Icon, ToastOverlay
 
 
 class ApplicationWindow(Adw.ApplicationWindow):
     def __init__(self, app: Adw.Application):
         super().__init__(application=app)
+
         self.set_default_size(800, 600)
         self.root = Adw.NavigationSplitView.new()
         self.set_content(self.root)
@@ -60,16 +62,8 @@ class ApplicationWindow(Adw.ApplicationWindow):
                 setattr(tmp_rowbox, "title", item["label"])
                 setattr(tmp_rowbox, "desc", item["desc"])
 
-                tmp_filepath = "{}/icons/{}.svg".format(__file__[:-12], item["icon"])
-                if GLib.file_test(tmp_filepath, GLib.FileTest.EXISTS):
-                    icon = Gtk.Image.new_from_gicon(
-                        Gio.FileIcon.new(Gio.File.new_for_path(tmp_filepath))
-                    )
-                else:
-                    icon = Gtk.Image.new_from_icon_name(item["icon"])
-
                 label = Gtk.Label.new(item["label"])
-                tmp_grid.attach(icon, 0, 0, 1, 1)
+                tmp_grid.attach(Icon(item["icon"]), 0, 0, 1, 1)
                 tmp_grid.attach(label, 1, 0, 1, 1)
                 tmp_rowbox.set_child(tmp_grid)
 
@@ -94,6 +88,14 @@ class ApplicationWindow(Adw.ApplicationWindow):
         return self.add_pages()
 
     def on_row_activated(self, _, sidebar_rowbox: Gtk.ListBoxRow):
+
+        match self.main_content_view_stack.get_visible_child_name().lower():
+            case "general":
+                pass
+            case "decoration":
+                decoration_page.pop_to_tag("index-page")
+            case _:
+                pass
         self.main_content_top_bar_title.set_title(getattr(sidebar_rowbox, "title"))
         self.main_content_top_bar_title.set_subtitle(getattr(sidebar_rowbox, "desc"))
         self.main_content_view_stack.set_visible_child_name(

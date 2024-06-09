@@ -18,7 +18,7 @@ Built using [hyprparser-py](https://github.com/tokyob0t/hyprparser-py)
 - [ ] Remove, add startup cmds
 - [ ] Finish pages
   - [x] General
-  - [ ] Decoration
+  - [X] Decoration
   - [ ] Animations
   - [ ] Input
   - [ ] Gestures
