@@ -1,10 +1,19 @@
-from ...structures import (Adw, ButtonRow, ColorEntryRow, Icon,
-                           PreferencesGroup, SpinRow, SwitchRow)
+from ...widgets import (
+    ButtonRow,
+    ColorEntryRow,
+    PreferencesGroup,
+    SpinRow,
+    SwitchRow,
+)
 from .blur import blur_page
+from ...imports import Adw
 
-index_page = Adw.NavigationPage.new(Adw.PreferencesPage.new(), title="TEEEEST")
-index_page.set_tag("index-page")
-#
+
+index_page = Adw.NavigationPage(
+    child=Adw.PreferencesPage.new(), title="TEEEEST", tag="index-page"
+)
+
+
 index_page_content: Adw.PreferencesPage = index_page.get_child()  # type:ignore
 
 decoration_page = Adw.NavigationView.new()
@@ -17,9 +26,11 @@ decoration_page.add(blur_page)
 settings_rounding = PreferencesGroup("", "")
 
 settings_rounding_spinrow = SpinRow(
-    "Rounding", "Rounded corners' radius (in layout px).", "decoration:rounding"
+    "Rounding",
+    "Rounded corners' radius (in layout px).",
+    "decoration:rounding",
 )
-settings_rounding.add(settings_rounding_spinrow.instance)
+settings_rounding.add(settings_rounding_spinrow)
 
 settings_opacity = PreferencesGroup(
     "Opacity", "Active, inactive and fullscreen opacity."
@@ -121,9 +132,6 @@ for i in [
     settings_dim_special,
     settings_dim_around,
 ]:
-    if hasattr(i, "instance"):
-        settings_dim.add(i.instance)
-        continue
     settings_dim.add(i)
 
 
@@ -136,9 +144,6 @@ for i in [
     settings_shadow_color_inactive,
     settings_shadow_scale,
 ]:
-    if hasattr(i, "instance"):
-        settings_shadow.add(i.instance)
-        continue
     settings_shadow.add(i)
 
 for i in [
@@ -146,7 +151,7 @@ for i in [
     settings_opacity_inactive,
     settings_opacity_fullscreen,
 ]:
-    settings_opacity.add(i.instance)
+    settings_opacity.add(i)
 
 
 for i in [settings_rounding, settings_opacity, settings_shadow, settings_dim]:

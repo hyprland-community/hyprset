@@ -1,4 +1,6 @@
-from ...structures import Adw, PreferencesGroup, SpinRow, SwitchRow
+from ...widgets import PreferencesGroup, SpinRow, SwitchRow
+from ...imports import Adw
+
 
 blur_page = Adw.NavigationPage.new(Adw.PreferencesPage.new(), title="TEEEEST")
 blur_page.set_tag("blur-page")
@@ -8,10 +10,13 @@ blur_page_content: Adw.PreferencesPage = blur_page.get_child()  # type: ignore
 settings_blur = PreferencesGroup("", "")
 
 settings_blur_size = SpinRow(
-    "Blur Size", "Blur size (distance).", "decoration:blur:size"
+    "Blur Size", "Blur size (distance).", "decoration:blur:size", min=1
 )
 settings_blur_passes = SpinRow(
-    "Blur Passes", "The amount of passes to perform.", "decoration:blur:passes"
+    "Blur Passes",
+    "The amount of passes to perform.",
+    "decoration:blur:passes",
+    min=1,
 )
 
 settings_blur_ignore_opacity = SwitchRow(
@@ -90,7 +95,6 @@ settings_blur_popups_ignorealpha = SpinRow(
 
 
 for i in [
-    # settings_blur_enabled,
     settings_blur_size,
     settings_blur_passes,
     settings_blur_ignore_opacity,
@@ -107,8 +111,8 @@ for i in [
 ]:
     if hasattr(i, "instance"):
         settings_blur.add(i.instance)
-        continue
-    settings_blur.add(i)
+    else:
+        settings_blur.add(i)
 
 settings_blur_enabled = PreferencesGroup(
     "",
@@ -119,7 +123,7 @@ settings_blur_enabled.add(
         "Blur Enabled",
         "Enable kawase window background blur.",
         "decoration:blur:enabled",
-    ).instance
+    )
 )
 
 

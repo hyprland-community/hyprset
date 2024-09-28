@@ -1,32 +1,48 @@
 .hyprland-settings {
-  font-weight: 700;
+    font-weight: 700;
+}
+
+.bezier-editor-container {
+    margin: 0 20px;
+}
+
+.bezier-preferences-group {
+    padding: 0 20px;
 }
 
 .transparent-button {
-  background: unset;
-  background-color: unset;
-  font-weight: 500;
+    background: unset;
+    background-color: unset;
+    font-weight: 500;
 }
 
 .checkbutton-container {
-  margin: 0 6px;
+    margin: 0 6px;
 }
 
 .list-box-scroll {
-  background: transparent;
+    background: transparent;
+    min-width: 220px;
 }
+
 .list-box-scroll .list-box-row {
-  border-radius: 6px;
-  padding: 0 12px;
-  margin: 0 6px 2px 6px;
-  min-height: 40px;
+    border-radius: 6px;
+    padding: 0 12px;
+    margin: 0 6px 2px 6px;
+    min-height: 40px;
 }
+
 .list-box-scroll .list-box-row label {
-  font-size: 14.6px;
-  font-weight: 400;
+    font-size: 14.6px;
+    font-weight: 400;
 }
+
 .list-box-scroll separator {
-  margin: 6px;
+    margin: 6px;
+}
+
+.unsetted-rowbox {
+    all: unset;
 }
 
 /*# sourceMappingURL=style.css.map */
