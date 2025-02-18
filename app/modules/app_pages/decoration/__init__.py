@@ -58,46 +58,7 @@ settings_opacity_fullscreen = SpinRow(
     max=1.0,
 )
 
-settings_shadow = PreferencesGroup("Shadow", "Drop shadow, range, power and colors.")
-settings_shadow_drop_shadow = SwitchRow(
-    "Drop Shadow", "Enable drop shadows on windows.", "decoration:drop_shadow"
-)
-settings_shadow_range = SpinRow(
-    "Shadow Range",
-    "Shadow range (“size”) in layout px.",
-    "decoration:shadow_range",
-)
-settings_shadow_render_power = SpinRow(
-    "Shadow Render Power",
-    "In what power to render the falloff (more power, the faster the falloff).",
-    "decoration:shadow_render_power",
-    min=1,
-    max=4,
-)
 
-
-settings_shadow_ignore_window = SwitchRow(
-    "Shadow Ignore Window",
-    "If enabled, the shadow will not be rendered behind the window itself, only around it.",
-    "decoration:shadow_ignore_window",
-)
-settings_shadow_color = ColorEntryRow(
-    "Shadow's Color",
-    "Shadow's color. Alpha dictates shadow’s opacity.",
-    "decoration:col.shadow",
-)
-settings_shadow_color_inactive = ColorEntryRow(
-    "Inactive Shadow Color",
-    "Inactive shadow color. If not set, will fall back to <b><tt>col.shadow</tt></b>.",
-    "decoration:col.shadow_inactive",
-)
-settings_shadow_scale = SpinRow(
-    "Shadow's Scale",
-    "Shadow's scale.",
-    "decoration:shadow_scale",
-    max=1.0,
-    data_type=float,
-)
 settings_dim = PreferencesGroup("Dim", "Change dim settings.")
 settings_dim_inactive_window = SwitchRow(
     "Inactive Window",
@@ -135,16 +96,6 @@ for i in [
     settings_dim.add(i)
 
 
-for i in [
-    settings_shadow_drop_shadow,
-    settings_shadow_range,
-    settings_shadow_render_power,
-    settings_shadow_ignore_window,
-    settings_shadow_color,
-    settings_shadow_color_inactive,
-    settings_shadow_scale,
-]:
-    settings_shadow.add(i)
 
 for i in [
     settings_opacity_active,
@@ -154,7 +105,7 @@ for i in [
     settings_opacity.add(i)
 
 
-for i in [settings_rounding, settings_opacity, settings_shadow, settings_dim]:
+for i in [settings_rounding, settings_opacity, settings_dim]:
     index_page_content.add(i)
 
 
